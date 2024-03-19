@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Fine Tuned Model</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style-chatting.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-output"></div>
+        <input type="text" id="chat-input" placeholder="Type your prompt here..." autofocus>
+        <button id="send-prompt">Send</button>
+        <div id="loading" style="display:none;"><!-- Loading animation goes here --></div>
+    </div>
+    <script src="{{ url_for('static', filename='chat-script.js') }}"></script>
+</body>
+</html>
