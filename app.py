@@ -20,7 +20,7 @@ def long_running_task2():
         task_status = {"message": f"test {i}!"}
         time.sleep(1)  
     task_status = {"message": "Training finished!"}
-    task_status = {"message": "[*] Model ID: XKASDKOWQEIQWOEQW", "modelId": "XKAXKXKXKXKX"}
+    task_status = {"message": "[*] Model ID: XXXXXXX", "modelId": "XXXXXXX"}
 
 def train_thread(apiKey, prompt, temperature, number_of_examples):
     global task_status
