@@ -23,15 +23,28 @@ input[type="text"] {
     border-radius: 4px;
     font-size: 16px; /* Adjust font size as needed */
 }
-
+input[type="password"] {
+    width: 100%; /* Take full width of the container */
+    box-sizing: border-box; /* Include padding and borders in the element's total width */
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    border: 1px solid #555; /* Slightly lighter border for visibility */
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px; /* Adjust font size as needed */
+}
 input[type="text"]::placeholder {
     color: #bbb; /* Lighter color for placeholder text */
 }
 
 .parameters {
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
 }
-
+#toggle-password {
+    margin-left: -30px; /* Adjust based on your specific layout */
+}
 .container {
     position: relative;
     max-width: 600px;
@@ -66,12 +79,15 @@ textarea {
 }
 
 input[type=range], input[type=number] {
-    width: 100%;
+    width: calc(100% - 48px); /* Adjust width to account for spinner buttons */
     padding: 5px;
+    margin: 0 4px; /* Add space between input and buttons */
     background-color: #333;
     border-radius: 4px;
     border: 1px solid #444;
     color: white;
+    font-size: 1rem; /* Ensure font size is explicit for matching */
+
 }
 
 input[type=number] {
@@ -208,6 +224,31 @@ select {
     background-color: #424242;
     color: #fff;
 }
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+}
+
+.spinner-button {
+    cursor: pointer;
+    user-select: none;
+    padding: 5px 8px; /* Adjusted to better match input height, considering border */
+    margin: 0;
+    background-color: #333; /* Dark background */
+    border: 1px solid #444; /* Slightly lighter border to match input */
+    color: white; /* White text for visibility */
+    border-radius: 4px; /* Match input's border-radius */
+    font-size: 1rem; /* Adjusted for consistency with input text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-button:active {
+    background-color: #222; /* Darker shade for active state */
+}
+
 
 
 /* chatting.html */

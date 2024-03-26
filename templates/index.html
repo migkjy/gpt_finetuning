@@ -12,11 +12,27 @@
     <div class="container">
         <h1>GPT-3.5 Fine-Tuning Interface</h1>
 
+        <!-- Title Input with Default Date and Time -->
+        <div class="parameters">
+            <input type="text" id="title" placeholder="Enter Title Here...">
+        </div>
+
         <!-- API Key Input -->
         <div class="parameters">
             <input type="text" id="api-key" placeholder="Enter your OpenAI API Key here...">
+            <span id="toggle-password" style="cursor: pointer;">👁</span>
         </div>
-        
+
+        <!-- GPT Model Selection ComboBox -->
+        <div class="parameters">
+            <select id="gpt-model">
+                <option value="">Select GPT Model...</option>
+                <option value="gpt-3.5-turbo" selected>GPT-3.5-Turbo</option>
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-4-turbo-preview">GPT-4-Turbo-Preview</option>
+            </select>
+        </div>
+
         <!-- Default Prompts ComboBox -->
         <div class="parameters">
             <select id="default-prompts" onchange="insertDefaultPrompt()">
@@ -58,16 +74,23 @@
         
         <div class="parameters">
             <label for="num-examples">Number of Examples:</label>
-            <input type="number" id="num-examples" min="10" max="100" value="10">
+            <!-- <input type="number" id="num-examples" min="10" max="100" value="10"> -->
+            <div class="spinner-container">
+                <input type="number" id="num-examples" min="1" max="100" value="10">
+                <div class="spinner-button" onclick="changeValue(1)">+</div>
+                <div class="spinner-button" onclick="changeValue(-1)">-</div>
+            </div>
+            
         </div>
                 
         <!-- Updated Button Section -->
-        <button id="train">Train</button>
+        <button id="generate-examples">Generate Examples</button>
         <button id="create-fine-tune" class="green-btn">Create Fine Tune</button>
         
         
         <div id="status-area">..</div>
-        
+
+        <div id="dataframeElement"></div>
     </div>
 
     <script>
@@ -78,8 +101,25 @@
         }
     </script>
 
+    <script>
+        function insertDefaultPrompt() {
+            var selectBox = document.getElementById("default-prompts");
+            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+            document.getElementById("prompt-input").value = selectedValue;
+        }
+
+        // Set the default value for the Title input to the current date and time
+        window.onload = function() {
+            var now = new Date();
+            var dateTimeString = now.getFullYear() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + now.getDate().toString().padStart(2, '0') + ' ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById("title").value = dateTimeString;
+        };
+    </script>
+
+
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-    
+    <script src="/static/review-script.js"></script>
 </body>
 </html>

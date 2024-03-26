@@ -1,10 +1,18 @@
-from flask import Flask, jsonify,request, render_template
+from flask import Flask, jsonify,request, render_template, redirect, url_for
 import threading
 import time
-from gpt_testing import train, fine_tune
+from gpt_functions import generate_examples, fine_tune
+from gpt_functions import regenerate_example, list_to_df, df_to_list, generate_system_message, create_json_training_examples, upload_training_examples
+from bs4 import BeautifulSoup
 import openai
+import pandas as pd
+import os
+import uuid
+import json
 
 app = Flask(__name__)
+
+df = pd.DataFrame()
 
 # Simulated task status
 task_status = {"message": "Ready to start training."}
@@ -22,31 +30,86 @@ def long_running_task2():
     task_status = {"message": "Training finished!"}
     task_status = {"message": "[*] Model ID: XXXXXXX", "modelId": "XXXXXXX"}
 
-def train_thread(apiKey, prompt, temperature, number_of_examples):
-    global task_status
-    train(apiKey, prompt, temperature, number_of_examples, set_status)
+def call_generate_examples(apiKey, prompt, temperature, number_of_examples, model):
+    global task_status, df
+    generate_examples(apiKey, prompt, temperature, number_of_examples, set_status, df, model)
 
 def fine_tune_thread(job_id):
-    global task_status
-    fine_tune(job_id, set_status)
+    global task_status, SYSTEM_MESSAGE
+    fine_tune(job_id, set_status, SYSTEM_MESSAGE)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/start_training', methods=['POST'])
-def start_training():
+
+@app.route('/generate_examples', methods=['POST'])
+def api_generate_examples():
+
     # Extract parameters from the request
     data = request.get_json()
-    print("Starting training with parameters:", data)
+    print("Generating Examples with parameters:", data)
     apiKey = data.get("apiKey")
+    model = data.get("model")
     prompt = data.get("prompt")
     temp = data.get("temperature")
     examples = data.get("numExamples")
-    # Simulate processing time
-    # Implement your training logic here
-    threading.Thread(target=train_thread, args=[apiKey, prompt, temp, examples]).start()
+
+    threading.Thread(target=call_generate_examples, args=[apiKey, prompt, temp, examples, model]).start()
     return jsonify({"message": "Training started!"})
+
+def html_table_to_df(html_content):
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Find the table element
+    table = soup.find('table')
+
+    # Initialize lists to store column names and data
+    columns = []
+    data = []
+
+    # Extract column names from the table header (th) elements
+    for th in table.find('thead').find_all('th'):
+        columns.append(th.text.strip())
+
+    # Extract data from the table rows (tr) and cells (td)
+    for tr in table.find('tbody').find_all('tr'):
+        row = {}
+        for i, td in enumerate(tr.find_all('td')):
+            row[columns[i]] = td.text.strip()
+        data.append(row)
+
+    # Create a DataFrame from the extracted data
+    df_html = pd.DataFrame(data)
+
+    # Drop the last column (Action Column)
+    df_html = df_html.iloc[:, :-1]
+
+    # Change all column names to lowercase
+    df_html.columns = [column.lower() for column in df_html.columns]
+
+    # Return the DataFrame as JSON data
+    #print(df_html)
+    #df = df_html
+    return df_html
+
+
+SYSTEM_MESSAGE = ""
+@app.route('/confirm_training_data', methods=['POST'])
+def upload_training_data():
+    global SYSTEM_MESSAGE
+    html_content = request.json['html_content']
+    system_message = request.json['system_message']
+    SYSTEM_MESSAGE = system_message
+    set_status({'message': 'Uploading Training Data..'})
+    training_df = html_table_to_df(html_content)
+    list_of_trainings = create_json_training_examples(training_df, system_message)
+    file_id = upload_training_examples(list_of_trainings)
+
+    set_status({'message': f'Job ID: {file_id}', 'modelId': file_id})
+    return jsonify({'message': f'Job ID: {file_id}', 'modelId': file_id})
+
 
 @app.route('/start_fine_tuning', methods=['POST'])
 def start_fine_tuning():
@@ -71,6 +134,138 @@ def chat():
     apiKey = request.args.get('apiKey')
     systemMessage = request.args.get('systemMessage')
     return render_template('chatting.html', model=model, apiKey=apiKey, systemMessage=systemMessage)
+
+
+
+def save_temp_training_data(training_data_list):
+    # Directory to save the file
+    directory = 'files'
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Generate a random filename
+    filename = str(uuid.uuid4()) + '.csv'
+
+    # Save the DataFrame to a CSV file
+    file_path = os.path.join(directory, filename)
+
+    df = pd.DataFrame(training_data_list)
+
+    df.to_csv(file_path, index=False)
+    return file_path
+
+@app.route('/edit_examples', methods=['POST'])
+def edit_examples():
+    payload = request.json
+    #print(f"Payload Recieved:\n{payload}")
+    if request.method == 'POST':
+        # Assuming you're sending the DataFrame as a JSON object
+        jsonData = request.get_json()
+        df_data = jsonData.get('training_data')
+        sys_message = jsonData.get('system_message')
+        # Check if training_data is a string
+        if isinstance(df_data, str):
+            # Convert string to list of dictionaries
+            training_data_list = json.loads(df_data)
+        elif isinstance(df_data, list):
+            # If it's already a list, no need for conversion
+            training_data_list = df_data
+
+        #filename = save_temp_training_data(training_data_list)
+        #return jsonify({'example_data': training_data_list})
+        #return redirect(url_for('view_examples', filename=filename))
+        df = pd.DataFrame(training_data_list)
+        #print(df)
+        #return jsonify({'example_data': training_data_list})
+        #return df.to_html()
+
+        return render_template('review.html', dataframe=df, system_message=sys_message)
+
+@app.route('/regenerate/<int:index>', methods=['POST'])
+def regenerate(index):
+    global df
+    try:
+        prev_examples = df_to_list(df)
+        print(f"Regenerating EXAMPLE: {index}")
+        # Call the regenerate_df function to regenerate the DataFrame
+        df = list_to_df(regenerate_example(index, prev_examples, 0.4))
+        print(f"New DF:\n{df}")
+        # Return the regenerated DataFrame as JSON response
+        return jsonify(df.to_dict(orient='records')), 200
+    except IndexError as e:
+        # If the index is out of range, return an error message
+        print("Error: ", e)
+        return jsonify({'message': str(e)}), 404
+    
+
+@app.route('/get_system_message', methods=['GET'])
+def get_system_message():
+    api_key = request.args.get('apiKey')
+    model = request.args.get('model')
+    prompt = request.args.get('prompt')
+    system_message = generate_system_message(prompt)
+    return jsonify({'system_message': system_message})
+
+@app.route('/extract_dataframe', methods=['POST'])
+def extract_dataframe():
+    global df
+    try:
+        # Get the HTML content of the table from the request
+        html_content = request.json['html_content']
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        # Find the table element
+        table = soup.find('table')
+
+        # Initialize lists to store column names and data
+        columns = []
+        data = []
+
+        # Extract column names from the table header (th) elements
+        for th in table.find('thead').find_all('th'):
+            columns.append(th.text.strip())
+
+        # Extract data from the table rows (tr) and cells (td)
+        for tr in table.find('tbody').find_all('tr'):
+            row = {}
+            for i, td in enumerate(tr.find_all('td')):
+                row[columns[i]] = td.text.strip()
+            data.append(row)
+
+        # Create a DataFrame from the extracted data
+        df_html = pd.DataFrame(data)
+
+        # Drop the last column (Action Column)
+        df_html = df_html.iloc[:, :-1]
+
+        # Change all column names to lowercase
+        df_html.columns = [column.lower() for column in df_html.columns]
+
+        # Return the DataFrame as JSON data
+        #print(df_html)
+        df = df_html
+        return jsonify(df.to_dict(orient='records')), 200
+
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+    
+
+
+@app.route('/view_examples', methods=['GET'])
+def view_examples():
+    if request.method == 'GET':
+        filename = request.args.get('filename')
+        df = pd.read_csv(filename)
+
+    # Use filename to load the data or render the template
+    # Example: df = load_data(filename)
+    # Then render the template with df
+    
+    return render_template('review.html', dataframe=df)
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
