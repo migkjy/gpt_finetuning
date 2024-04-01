@@ -16,7 +16,7 @@ app = Flask(__name__)
 df = pd.DataFrame()
 
 # Simulated task status
-task_status = {"message": "Ready to start training."}
+#task_status = {"message": "Ready to start training."}
 
 def set_status(status):
     global task_status
@@ -308,10 +308,14 @@ def api_chat():
 
 @app.route('/clear_progress', methods=['POST'])
 def clear_progress():
+    global df, SYSTEM_MESSAGE
     if request.method == 'POST':
         # Restart the Flask app
-        os.execl(sys.executable, sys.executable, *sys.argv)
-        return 'App restarted successfully', 200
+        #os.execl(sys.executable, sys.executable, *sys.argv)
+        set_status({"message": "Session cleared."})
+        df = pd.DataFrame()
+        SYSTEM_MESSAGE = ""
+        return redirect(url_for('index'))
     else:
         return 'Method not allowed', 405
 

@@ -240,3 +240,19 @@ function toggleForm() {
         button.innerHTML = 'Show Examples &darr;'; // Change button text to show and show down arrow
     }
 }
+
+
+function checkAllRows() {
+    // Get the check-all checkbox
+    var checkAllCheckbox = document.getElementById("check-all");
+    // Get all checkboxes for rows
+    var rowCheckboxes = document.querySelectorAll('input[name="selectedRows"]');
+    
+    // Iterate over row checkboxes and check/uncheck them based on the check-all checkbox state
+    rowCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = checkAllCheckbox.checked;
+    });
+
+    // Update visibility of delete selected button
+    updateDeleteButtonVisibility();
+}

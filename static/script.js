@@ -37,6 +37,7 @@ function clearProgress() {
         if (response.ok) {
             console.log('App restarted successfully');
             showClearButton(false);
+            window.location.reload();
         } else {
             console.error('Failed to restart the app');
         }
