@@ -104,16 +104,54 @@ function uploadTrainingData(){
         alert('Failed to extract DataFrame.');
     });
 }
+// const htmlContent = document.getElementById('dataframe').outerHTML;
+
+// // Send an AJAX request to the server to extract the DataFrame
+// fetch('/extract_dataframe', {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({ html_content: htmlContent })
+// })
+
+function reconstruct_table(index) {
+    event.preventDefault();
+    // Get the HTML content of the table
+    const htmlContent = document.getElementById('dataframe').outerHTML;
+
+    // Send an AJAX request to the server to extract the DataFrame
+    fetch('/extract_dataframe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ html_content: htmlContent })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Print the extracted DataFrame
+        console.log(data);
+        updateTable(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to extract DataFrame.');
+    });
+}
+
 
 function regenerateRow(index) {
     event.preventDefault();
     extractDataFrame();
+    const htmlContent = document.getElementById('dataframe').outerHTML;
     // Send an AJAX request to the server to regenerate the row
     fetch(`/regenerate/${index}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ html_content: htmlContent })
         })
         .then(response => response.json())
         .then(data => {
@@ -142,6 +180,14 @@ function deleteRow(index) {
     
     // Remove the row from the table
     row.parentNode.removeChild(row);
+
+    // Update the IDs of the remaining rows
+    var tableBody = document.querySelector('#dataframe tbody');
+    var rows = tableBody.getElementsByTagName('tr');
+    for (var i = index + 1; i < rows.length; i++) {
+        rows[i].setAttribute('id', 'row_' + (i - 1));
+    }
+
     extractDataFrame();
 
 }

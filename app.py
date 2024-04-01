@@ -194,7 +194,13 @@ def edit_examples():
 def regenerate(index):
     global df
     try:
-        prev_examples = df_to_list(df)
+        # Get the HTML content of the table from the request
+        html_content = request.json['html_content']
+
+        df_html = extract_df_from_htmlcontent(html_content)
+
+        prev_examples = df_to_list(df_html)
+
         print(f"Regenerating EXAMPLE: {index}\nLOG:\nprev_examples: {prev_examples}\ndf:{df}\n=======")
         # Call the regenerate_df function to regenerate the DataFrame
         df = list_to_df(regenerate_example(index, prev_examples, 0.4))
@@ -215,6 +221,45 @@ def get_system_message():
     system_message = generate_system_message(prompt)
     return jsonify({'system_message': system_message})
 
+
+def extract_df_from_htmlcontent(html_content):
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Find the table element
+    table = soup.find('table')
+
+    # Initialize lists to store column names and data
+    columns = []
+    data = []
+
+    # Extract column names from the table header (th) elements
+    for th in table.find('thead').find_all('th'):
+        columns.append(th.text.strip())
+
+    # Extract data from the table rows (tr) and cells (td)
+    for tr in table.find('tbody').find_all('tr'):
+        row = {}
+        for i, td in enumerate(tr.find_all('td')):
+            row[columns[i]] = td.text.strip()
+        data.append(row)
+
+    # Create a DataFrame from the extracted data
+    df_html = pd.DataFrame(data)
+
+    # Drop the last column (Action Column)
+    #df_html = df_html.iloc[:, :-1]
+
+    # Change all column names to lowercase
+    df_html.columns = [column.lower() for column in df_html.columns]
+
+    # Replace column names
+    df_html.rename(columns={"user": "prompt", "assistant": "response"}, inplace=True)
+
+    # Drop all other columns except "prompt" and "response"
+    df_html = df_html[["prompt", "response"]]
+    return df_html
+
 @app.route('/extract_dataframe', methods=['POST'])
 def extract_dataframe():
     global df
@@ -222,42 +267,7 @@ def extract_dataframe():
         # Get the HTML content of the table from the request
         html_content = request.json['html_content']
 
-        # Parse the HTML content using BeautifulSoup
-        soup = BeautifulSoup(html_content, 'html.parser')
-
-        # Find the table element
-        table = soup.find('table')
-
-        # Initialize lists to store column names and data
-        columns = []
-        data = []
-
-        # Extract column names from the table header (th) elements
-        for th in table.find('thead').find_all('th'):
-            columns.append(th.text.strip())
-
-        # Extract data from the table rows (tr) and cells (td)
-        for tr in table.find('tbody').find_all('tr'):
-            row = {}
-            for i, td in enumerate(tr.find_all('td')):
-                row[columns[i]] = td.text.strip()
-            data.append(row)
-
-        # Create a DataFrame from the extracted data
-        df_html = pd.DataFrame(data)
-
-        # Drop the last column (Action Column)
-        #df_html = df_html.iloc[:, :-1]
-
-        # Change all column names to lowercase
-        df_html.columns = [column.lower() for column in df_html.columns]
-
-        # Replace column names
-        df_html.rename(columns={"user": "prompt", "assistant": "response"}, inplace=True)
-
-        # Drop all other columns except "prompt" and "response"
-        df_html = df_html[["prompt", "response"]]
-
+        df_html = extract_df_from_htmlcontent(html_content)
 
         # Return the DataFrame as JSON data
         print(f"Extracted df:\n-----\n{df_html}\n------\n")
