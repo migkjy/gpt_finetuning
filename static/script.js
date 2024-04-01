@@ -184,10 +184,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     hideLoader();
                     clearInterval(intervalId); // Stop polling
+                    const htmlContent = document.getElementById('dataframe').outerHTML;
                     const dataToSend = {
                         training_data: data.example_data,
                         system_message: data.system_message,
-
+                        htmlContent: htmlContent
                     };
                     fetch('/edit_examples', {
                         method: 'POST',
@@ -289,7 +290,7 @@ document.getElementById('toggle-password').addEventListener('click', function (e
 });
 
 
-//document.getElementById('num-examples').addEventListener('blur', enforceRange);
+document.getElementById('num-examples').addEventListener('blur', enforceRange);
 
 function enforceRange() {
     const input = document.getElementById('num-examples');

@@ -167,7 +167,9 @@ def edit_examples():
     payload = request.json
     #print(f"Payload Recieved:\n{payload}")
     if request.method == 'POST':
-        global df
+        
+        html_content = request.json['html_content']
+        df = html_table_to_df(html_content)
         # Assuming you're sending the DataFrame as a JSON object
         jsonData = request.get_json()
         df_data = jsonData.get('training_data')
