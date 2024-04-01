@@ -184,11 +184,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     hideLoader();
                     clearInterval(intervalId); // Stop polling
-                    const htmlContent = document.getElementById('dataframe').outerHTML;
+                    let html_content = '';
+                    const dataframeElement = document.getElementById('dataframe');
+                    if (dataframeElement) {
+                        html_content = dataframeElement.outerHTML;
+                    } else {
+                        console.error('Element with id "dataframe" not found.');
+                    }
                     const dataToSend = {
                         training_data: data.example_data,
                         system_message: data.system_message,
-                        htmlContent: htmlContent
+                        html_content: html_content
                     };
                     fetch('/edit_examples', {
                         method: 'POST',

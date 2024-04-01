@@ -169,7 +169,10 @@ def edit_examples():
     if request.method == 'POST':
         
         html_content = request.json['html_content']
-        df = html_table_to_df(html_content)
+        if html_content != '':
+            df = html_table_to_df(html_content)
+        else:
+            df = pd.DataFrame()
         # Assuming you're sending the DataFrame as a JSON object
         jsonData = request.get_json()
         df_data = jsonData.get('training_data')
