@@ -1,0 +1,143 @@
+<html id='' lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .inner_body {
+            background-color: transparent;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+        }
+        td.editable {
+            cursor: pointer;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+        }
+        .regenerate-btn {
+            padding: 5px 10px;
+            background-color: #4caf50;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+        .regenerate-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #ff3333; /* Red background color */
+            color: white; /* White text color */
+            border: none; /* No border */
+            padding: 8px 12px; /* Padding */
+            cursor: pointer; /* Cursor on hover */
+            border-radius: 4px; /* Rounded corners */
+            transition: background-color 0.3s; /* Smooth color transition on hover */
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000; /* Darker red background color on hover */
+        }
+
+        /* Hide default checkbox */
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkbox-label {
+            position: relative; /* Add position relative to position the pseudo-element relative to the checkbox */
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        input[type="checkbox"]:checked + .checkbox-label::after {
+            content: "\f00c";
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            color: #fff;
+            font-size: 10px;
+            position: absolute; /* Position the check sign absolutely */
+            top: 50%; /* Position the check sign vertically at the middle */
+            left: 50%; /* Position the check sign horizontally at the middle */
+            transform: translate(-50%, -50%); /* Move the check sign back by half of its size */
+        }
+
+
+    </style>
+
+    
+</head>
+
+
+<body>
+    <button id="toggleButton" onclick="toggleForm()">Show Examples &darr;</button>
+    <div id="review-table-body" class="inner_body">
+    
+
+    <form id="review-examples-html">
+        <h1 style="padding-top: 20px;">Review {{dataframe.shape[0]}} Training Examples</h1>
+        <button id="delete-selected" onclick="deleteSelected()" class="delete-btn" style="float: right; margin: 2px; width: 50px; display: none;">
+            <i class="fas fa-trash-alt"></i> <!-- Font Awesome trash icon -->
+        </button>
+                <table id="dataframe">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>User</th>
+                    <th>Assistant</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in dataframe.iterrows() %}
+                <tr id="row_{{ index }}">
+                    <td><!-- Checkbox for each row -->
+                        <input type="checkbox" id="checkbox_{{ index }}" name="selectedRows" value="{{ index }}" onclick="updateDeleteButtonVisibility()">
+                        <label class="checkbox-label" for="checkbox_{{ index }}"></label>
+                    </td> 
+
+                    <td class="editable" contenteditable="true">{{ row['prompt'] }}</td>
+                    <td class="editable" contenteditable="true">{{ row['response'] }}</td>
+                    <td>
+                        <button class="regenerate-btn" onclick="regenerateRow({{ index }})">Regenerate</button>
+                        <button class="delete-btn" onclick="deleteRow({{ index }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <textarea id="system-message" placeholder="Enter system message here...">{{ system_message }}</textarea>
+    
+        <button id="get-system-message-btn" class="regenerate-btn" onclick="getSystemMessage()" type="button">Regenerate System Message</button>
+        <button id="confirm-training-data" onclick="uploadTrainingData()">Confirm Training Data</button>
+    </form>
+        
+    </div>
+
+
+</body>
+
+</html>

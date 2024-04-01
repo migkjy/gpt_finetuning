@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT-3.5 Fine-Tuning Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+</head>
+<body>
+    <div class="container">
+        <h1>GPT-3.5 Fine-Tuning Interface</h1>
+
+        <!-- Title Input with Default Date and Time -->
+        <div class="parameters">
+            <input type="text" id="title" placeholder="Enter Title Here...">
+        </div>
+
+        <!-- API Key Input -->
+        <div class="parameters">
+            <input type="text" id="api-key" placeholder="Enter your OpenAI API Key here...">
+            <span id="toggle-password" style="cursor: pointer;">👁</span>
+        </div>
+
+        <!-- GPT Model Selection ComboBox -->
+        <div class="parameters">
+            <select id="gpt-model">
+                <option value="">Select GPT Model...</option>
+                <option value="gpt-3.5-turbo" selected>GPT-3.5-Turbo</option>
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-4-turbo-preview">GPT-4-Turbo-Preview</option>
+            </select>
+        </div>
+
+        <!-- Default Prompts ComboBox -->
+        <div class="parameters">
+            <select id="default-prompts" onchange="insertDefaultPrompt()">
+                <option value="">Select a Default Prompt...</option>
+                <option value="Conduct a SWOT analysis for your department, identifying strengths, weaknesses, opportunities, and threats.">Strategic Planning: SWOT Analysis</option>
+                <option value="Develop a succession plan for key leadership roles in your department, including strategies for identifying and grooming future leaders.">Team Management: Succession Planning</option>
+                <option value="Write a comprehensive report comparing various project management tools, including pros, cons, and recommendations for your organization.">Technology Evaluation: Project Management Tools Comparison</option>
+                <option value="Design an employee satisfaction survey, including questions about workplace environment, management, and job satisfaction.">HR Initiative: Employee Satisfaction Survey</option>
+                <option value="Prepare a risk management plan for a high-stakes project, detailing potential risks, impact assessment, and mitigation strategies.">Project Management: Risk Management Plan</option>
+                <option value="Create a budget proposal for the next fiscal year, outlining expected revenues, expenditures, and justifications for significant budget items.">Financial Planning: Budget Proposal for Fiscal Year</option>
+                <option value="Draft an internal communication plan for a major organizational change, including timelines, channels, and key messages.">Communication Strategy: Organizational Change Plan</option>
+                <option value="Outline the process for evaluating and implementing new technology solutions within your department, including criteria for selection and steps for adoption.">Technology Adoption: New Solutions Evaluation Process</option>
+                <option value="Develop a customer feedback collection plan, including methods for gathering, analyzing, and acting on customer feedback.">Customer Relations: Feedback Collection Plan</option>
+                <option value="Write a guide for resolving conflicts within teams, including steps for mediation, communication tips, and how to foster a positive work environment.">Team Management: Conflict Resolution Guide</option>
+                <option value="Propose a new product development process, from ideation through to market launch, including stages, key activities, and roles.">Product Development: New Process Proposal</option>
+                <option value="Create an action plan for improving diversity and inclusion within your department, including goals, initiatives, and metrics for success.">Corporate Social Responsibility: Diversity and Inclusion Action Plan</option>
+                <option value="Outline a training and development program for mid-level managers, focusing on leadership, strategic decision-making, and financial management.">Leadership Development: Mid-Level Manager Training Program</option>
+                <option value="Develop a plan for enhancing digital security measures in your organization, including cybersecurity best practices, employee training, and incident response strategies.">Technology Management: Enhancing Digital Security</option>
+                <option value="Create a checklist for the end-of-day closing procedures for the office, ensuring all essential tasks are covered.">Office Management: End-of-Day Closing Checklist</option>
+                <option value="Draft an onboarding schedule for a new employee that includes meetings with key team members, training sessions, and introductory project work.">HR Management: New Employee Onboarding Schedule</option>
+                <option value="Develop a budget proposal for upgrading departmental technology, including cost comparisons, benefits, and implementation timeline.">Finance Management: Departmental Technology Upgrade Budget</option>
+                <option value="Write a detailed plan for a team-building retreat that includes activities, goals, and a schedule.">Team Building: Plan for Team-Building Retreat</option>
+                <option value="Outline a procedure for regular maintenance checks of office equipment to ensure optimal performance and longevity.">Operations Management: Office Equipment Maintenance Procedure</option>
+                <option value="Design a feedback form for internal software tools, focusing on usability, performance, and feature requests.">IT Management: Internal Software Feedback Form</option>
+                <option value="Create a comprehensive emergency response plan for your office, including evacuation routes, safety procedures, and emergency contacts.">Safety Management: Office Emergency Response Plan</option>
+                <option value="Draft a memo to introduce a new recycling and sustainability initiative in the office, outlining goals, practices, and employee involvement.">Environmental Management: Recycling and Sustainability Initiative Memo</option>
+                <option value="Compose an email to the company announcing a new partnership, detailing the partnership's objectives and expected benefits.">Corporate Communications: New Partnership Announcement Email</option>
+                
+            </select>
+        </div>
+
+        <textarea id="prompt-input" placeholder="Enter your prompt here..."></textarea>
+        
+        <div class="parameters">
+            <label for="temperature">Temperature:</label>
+            <input type="range" id="temperature" min="0.1" max="1" step="0.01" value="0.4">
+            <span id="temperature-value">0.4</span>
+        </div>
+        
+        <div class="parameters">
+            <label for="num-examples">Number of Examples:</label>
+            <!-- <input type="number" id="num-examples" min="10" max="100" value="10"> -->
+            <div class="spinner-container">
+                <input type="number" id="num-examples" min="10" max="100" value="10">
+                <div class="spinner-button" onclick="changeValue(1)">+</div>
+                <div class="spinner-button" onclick="changeValue(-1)">-</div>
+            </div>
+            
+        </div>
+                
+        <!-- Updated Button Section -->
+        <button id="generate-examples">Generate Examples</button>
+
+        <button id="clear-session" class="red-btn" onclick="clearProgress()" style="display: none;">Clear</button>
+
+        <button id="create-fine-tune" class="green-btn">Create Fine Tune</button>
+        
+        
+        <div id="status-area">..</div>
+
+        <div id="dataframeElement"></div>
+    </div>
+
+    <script>
+        function insertDefaultPrompt() {
+            var selectBox = document.getElementById("default-prompts");
+            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+            document.getElementById("prompt-input").value = selectedValue;
+        }
+    </script>
+
+    <script>
+        function insertDefaultPrompt() {
+            var selectBox = document.getElementById("default-prompts");
+            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+            document.getElementById("prompt-input").value = selectedValue;
+        }
+
+        // Set the default value for the Title input to the current date and time
+        window.onload = function() {
+            var now = new Date();
+            var dateTimeString = now.getFullYear() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + now.getDate().toString().padStart(2, '0') + ' ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById("title").value = dateTimeString;
+        };
+    </script>
+
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script src="/static/review-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+/* Basic Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+input[type="text"] {
+    width: 100%; /* Take full width of the container */
+    box-sizing: border-box; /* Include padding and borders in the element's total width */
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    border: 1px solid #555; /* Slightly lighter border for visibility */
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px; /* Adjust font size as needed */
+}
+input[type="password"] {
+    width: 100%; /* Take full width of the container */
+    box-sizing: border-box; /* Include padding and borders in the element's total width */
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    border: 1px solid #555; /* Slightly lighter border for visibility */
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px; /* Adjust font size as needed */
+}
+input[type="text"]::placeholder {
+    color: #bbb; /* Lighter color for placeholder text */
+}
+
+.parameters {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+#toggle-password {
+    margin-left: -30px; /* Adjust based on your specific layout */
+}
+.container {
+    position: relative;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #242424;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+    resize: vertical;
+}
+
+.parameters label, .parameters input, .parameters span {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+input[type=range], input[type=number] {
+    width: calc(100% - 48px); /* Adjust width to account for spinner buttons */
+    padding: 5px;
+    margin: 0 4px; /* Add space between input and buttons */
+    background-color: #333;
+    border-radius: 4px;
+    border: 1px solid #444;
+    color: white;
+    font-size: 1rem; /* Ensure font size is explicit for matching */
+
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.green-btn {
+    background-color: #4CAF50; /* Green */
+}
+
+.green-btn:hover {
+    background-color: #45a049;
+}
+
+.red-btn {
+    background-color: #ff0000; /* Green */
+}
+
+.red-btn:hover {
+    background-color: #b80303;
+}
+
+input[type=number] {
+    appearance: textfield;
+}
+
+
+#status-area {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    textarea, input[type=range], input[type=number], button {
+        font-size: 14px;
+    }
+}
+
+#loader {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.5); /* Transparent black background */
+    padding: 20px;
+    border-radius: 5px;
+    color: #fff; /* White text color */
+    display: flex; /* Use flexbox */
+    align-items: center; /* Align items vertically */
+}
+
+.loader-content {
+    display: flex; 
+    align-items: center; 
+}
+
+.loader-circle {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    animation: spin 2s linear infinite;
+}
+
+
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+  
+@media (max-width: 600px) {
+    .parameters, textarea, button {
+        width: 100%;
+        box-sizing: border-box;
+}
+
+.container {
+    padding: 0 20px;
+}
+
+textarea {
+    margin-bottom: 20px; 
+}
+}
+
+select {
+    width: 100%;
+    padding: 8px 12px;
+    margin: 8px 0;
+    display: inline-block;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    border: 1px solid #555; /* Slightly lighter border for visibility */
+}
+
+
+.parameters select {
+    background-color: #424242;
+    color: #fff;
+}
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+}
+
+.spinner-button {
+    cursor: pointer;
+    user-select: none;
+    padding: 5px 8px; /* Adjusted to better match input height, considering border */
+    margin: 0;
+    background-color: #333; /* Dark background */
+    border: 1px solid #444; /* Slightly lighter border to match input */
+    color: white; /* White text for visibility */
+    border-radius: 4px; /* Match input's border-radius */
+    font-size: 1rem; /* Adjusted for consistency with input text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-button:active {
+    background-color: #222; /* Darker shade for active state */
+}
+
+
+
+/* chatting.html */
+.chat-container {
+    max-width: 600px;
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+#chat-output {
+    height: 300px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#chat-input {
+    width: calc(100% - 90px);
+    padding: 10px;
+}
+
+#send-prompt {
+    width: 80px;
+    height: 40px;
+    margin-left: 10px;
+}
+
