@@ -288,7 +288,7 @@ document.getElementById('toggle-password').addEventListener('click', function (e
 });
 
 
-//document.getElementById('num-examples').addEventListener('blur', enforceRange);
+document.getElementById('num-examples').addEventListener('blur', enforceRange);
 
 function enforceRange() {
     const input = document.getElementById('num-examples');

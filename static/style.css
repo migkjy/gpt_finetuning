@@ -47,7 +47,7 @@ input[type="text"]::placeholder {
 }
 .container {
     position: relative;
-    max-width: 600px;
+    max-width: 65vw;
     margin: 20px auto;
     padding: 20px;
     border-radius: 8px;
