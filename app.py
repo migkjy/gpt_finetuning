@@ -16,7 +16,7 @@ app = Flask(__name__)
 df = pd.DataFrame()
 
 # Simulated task status
-#task_status = {"message": "Ready to start training."}
+task_status = {"message": "[!] Loading..."}
 
 def set_status(status):
     global task_status
